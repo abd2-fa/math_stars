@@ -15,7 +15,7 @@
 <body>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Baloo+Bhaijaan+2:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Baloo+Bhaijaan+2:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
 <style>
 /* Layout: a classroom board — navy frame, cream paper of name slots, archive drawer beneath */
 :root{
@@ -332,6 +332,7 @@ render();
 })();
 </script>
 
-<script>if('serviceWorker' in navigator&&location.protocol==='https:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
+<div id="offline" dir="rtl" hidden style="text-align:center;font:600 13px/1.4 system-ui,sans-serif;color:#3a8a2e;padding:6px 0 18px">✓ التطبيق محفوظ على هالجهاز وبيشتغل بلا نت</div>
+<script>if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{});navigator.serviceWorker.ready.then(()=>{document.getElementById('offline').hidden=false}).catch(()=>{})}</script>
 </body>
 </html>
