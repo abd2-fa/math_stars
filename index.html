@@ -13,6 +13,20 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
+<div id="offline" dir="rtl" style="position:sticky;top:0;z-index:20;text-align:center;font:700 14px/1.5 system-ui,sans-serif;color:#c80;background:#fff;padding:8px 12px;border-bottom:2px solid #1d2f5e">… عم يفحص</div>
+<script>(function(){
+const el=document.getElementById('offline');
+const say=(t,c)=>{el.textContent=t;el.style.color=c};
+let ls=true;try{localStorage.setItem('_t','1');localStorage.removeItem('_t')}catch(e){ls=false}
+if(!ls)return say('✗ المتصفح مانع حفظ البيانات لهالموقع','#d33');
+if(!('serviceWorker' in navigator))return say('✗ المتصفح ما بيدعم الحفظ بلا نت (serviceWorker)','#d33');
+if(location.protocol!=='https:')return say('افتح التطبيق من رابط https','#d33');
+if(!('caches' in window))return say('✗ المتصفح مانع التخزين (caches)','#d33');
+say('… عم يتجهّز للعمل بلا نت، استنى','#c80');
+navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready).then(()=>caches.keys()).then(k=>{
+  if(navigator.serviceWorker.controller){say('✓ جاهز بلا نت','#3a8a2e');setTimeout(()=>{el.hidden=true},2500)}else say('✓ انحفظ، سكّر التطبيق وافتحه مرة كمان مع النت','#3a8a2e');
+}).catch(e=>say('✗ خطأ: '+(e&&e.name||'')+' '+(e&&e.message||e),'#d33'));
+})();</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Baloo+Bhaijaan+2:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
@@ -111,18 +125,21 @@ button{cursor:pointer}
 .empty{color:#cfd8f0;font-size:15px}
 
 /* Archive detail view */
-.viewer{max-width:900px;margin:0 auto;padding-block:16px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
-.vtop .btn.ghost{background:var(--navy)}
-.vtop{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between}
-.vcard{background:var(--navy);border-radius:22px;padding:24px clamp(14px,4vw,32px);box-shadow:inset 0 0 0 6px var(--navy-deep);display:grid;gap:12px;justify-items:center}
-.vtitle{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(30px,6vw,52px);line-height:1.2;color:var(--gold);text-shadow:0 3px 0 #b5561c;text-align:center;text-wrap:balance}
-.vmeta{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center;background:var(--orange);color:#fff;font-weight:700;padding:4px 20px;border-radius:6px;font-variant-numeric:tabular-nums}
+.viewer{position:fixed;inset:0;z-index:30;background:var(--navy);display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));overflow:hidden}
+.vcard{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--navy);border-radius:18px;box-shadow:inset 0 0 0 5px var(--navy-deep);padding:12px 10px}
+.vtitle{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(26px,8vw,48px);line-height:1.15;color:var(--gold);text-shadow:0 3px 0 #b5561c;text-align:center}
+.vmeta{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;background:var(--orange);color:#fff;font-weight:700;font-size:15px;padding:3px 18px;border-radius:6px;font-variant-numeric:tabular-nums}
 .vmeta b{color:#fff6c9}
-.vnames{list-style:none;margin:8px 0 0;padding:20px;width:100%;background:var(--paper);border-radius:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px 18px;counter-reset:n}
-.vnames li{counter-increment:n;display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:2px solid var(--paper-edge);font-weight:700;font-size:18px;color:var(--ink);min-width:0}
-.vnames li::before{content:counter(n);flex:none;width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--navy-deep);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
-.vnames li span{min-width:0;overflow-wrap:anywhere;flex:1}
-.vnames li .vstar{font-style:normal;color:var(--gold);font-size:22px;line-height:1;text-shadow:0 2px 0 #c98a12;flex:none}
+.vpaper{flex:1;min-height:0;width:100%;background:var(--paper);border-radius:14px;padding:10px;overflow:hidden}
+.vnames{list-style:none;margin:0;padding:0;height:100%;display:grid;gap:0 10px;align-content:space-evenly}
+.vnames li{display:flex;align-items:center;gap:.35em;min-width:0;border-bottom:1px solid var(--paper-edge);padding:.12em 0;font-weight:700;color:var(--ink);line-height:1.2}
+.vnames li .vno{flex:none;min-width:1.6em;height:1.6em;padding:0 .2em;border-radius:1em;background:var(--gold);color:var(--navy-deep);display:grid;place-items:center;font-size:.7em;font-variant-numeric:tabular-nums}
+.vnames li span{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vnames li .vstar{font-style:normal;color:var(--gold);line-height:1;text-shadow:0 1px 0 #c98a12;flex:none}
+.vbar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding-top:8px}
+.vbar .btn{font-size:14px;padding:7px 14px}
+.vbar .btn.ghost{background:var(--navy-deep)}
+.viewer.clean .vbar{display:none}
 
 body.show .bar,body.show .archive{display:none}
 body.show .slot .n{border-bottom-color:transparent}
@@ -183,15 +200,17 @@ body.show .slot:not(.filled){visibility:hidden}
 </div>
 
 <div class="viewer" id="viewer" dir="rtl" hidden>
-  <div class="vtop">
-    <button class="btn ghost" id="vback" type="button">→ رجوع للأرشيف</button>
-    <button class="btn" id="vedit" type="button">تعديل هاللوحة</button>
-  </div>
-  <section class="vcard">
+  <section class="vcard" id="vcard">
     <h1 class="vtitle" id="vtitle"></h1>
-    <div class="vmeta"><span id="vdate"></span><span class="rsep">★</span><span>عدد الطلاب: <b id="vcount"></b></span></div>
-    <ol class="vnames" id="vnames"></ol>
+    <div class="vmeta"><span id="vdate" dir="ltr"></span><span>★</span><span>عدد الطلاب: <b id="vcount"></b></span></div>
+    <div class="vpaper" id="vpaper"><ol class="vnames" id="vnames"></ol></div>
   </section>
+  <div class="vbar">
+    <button class="btn ghost" id="vback" type="button">→ رجوع</button>
+    <button class="btn save" id="vimg" type="button">حفظ كصورة</button>
+    <button class="btn ghost" id="vclean" type="button">إخفاء الأزرار للسكرين شوت</button>
+    <button class="btn" id="vedit" type="button">تعديل</button>
+  </div>
 </div>
 <button class="btn exit" id="exit" type="button" hidden>رجوع للتعديل</button>
 
@@ -257,18 +276,94 @@ function renderList(){
   });
 }
 
-let viewing=null;
+let viewing=null, vnames=[];
+function fitView(){
+  const box=$('#vpaper'), ol=$('#vnames'); if($('#viewer').hidden)return;
+  const n=Math.max(vnames.length,1), W=box.clientWidth-20, H=box.clientHeight-20;
+  const longest=Math.max(4,...vnames.map(x=>x.length));
+  let best={c:1,f:8};
+  for(let c=1;c<=8;c++){
+    const rows=Math.ceil(n/c), cellW=(W-(c-1)*10)/c, cellH=H/rows;
+    const f=Math.min(cellH/1.75, cellW/(longest*0.55+3.4), 30);
+    if(f>best.f)best={c,f};
+  }
+  ol.style.gridTemplateColumns='repeat('+best.c+',minmax(0,1fr))';
+  ol.style.fontSize=Math.max(7,Math.floor(best.f))+'px';
+}
 function openView(b){
   viewing=b;
-  const names=(b.names||[]).map(x=>(x||'').trim()).filter(Boolean);
+  vnames=(b.names||[]).map(x=>(x||'').trim()).filter(Boolean);
   $('#vtitle').textContent=b.title||'نجوم الرياضيات';
-  $('#vdate').textContent=fmt(b.date);
-  $('#vcount').textContent=names.length;
+  $('#vdate').textContent=dnum(b.date)||b.date;
+  $('#vcount').textContent=vnames.length;
   const ol=$('#vnames');ol.innerHTML='';
-  names.forEach(n=>{const li=document.createElement('li');const s=document.createElement('span');s.textContent=n;const st=document.createElement('i');st.className='vstar';st.textContent='★';li.append(s,st);ol.appendChild(li)});
+  vnames.forEach((n,i)=>{const li=document.createElement('li');li.innerHTML='<b class="vno"></b><span></span><i class="vstar">★</i>';li.children[0].textContent=i+1;li.children[1].textContent=n;ol.appendChild(li)});
+  $('#viewer').classList.remove('clean');
   document.querySelector('.wrap').hidden=true;$('#viewer').hidden=false;window.scrollTo(0,0);
+  const off=document.getElementById('offline');if(off)off.hidden=true;
+  requestAnimationFrame(fitView);
 }
-function closeView(){viewing=null;$('#viewer').hidden=true;document.querySelector('.wrap').hidden=false}
+window.addEventListener('resize',()=>requestAnimationFrame(fitView));
+function closeView(){viewing=null;$('#viewer').hidden=true;$('#viewer').classList.remove('clean');document.querySelector('.wrap').hidden=false}
+$('#vclean').onclick=()=>{$('#viewer').classList.add('clean');requestAnimationFrame(fitView)};
+$('#vcard').onclick=()=>{if($('#viewer').classList.contains('clean')){$('#viewer').classList.remove('clean');requestAnimationFrame(fitView)}};
+
+function drawPoster(b,names){
+  const W=1240,H=1754, c=document.createElement('canvas'); c.width=W;c.height=H;
+  const x=c.getContext('2d'), disp='"Lalezar","Baloo Bhaijaan 2",Tahoma,sans-serif', body='"Baloo Bhaijaan 2",Tahoma,sans-serif';
+  const rr=(X,Y,w,h,r)=>{x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath()};
+  x.fillStyle='#1d2f5e';x.fillRect(0,0,W,H);
+  x.strokeStyle='#14214a';x.lineWidth=24;x.strokeRect(12,12,W-24,H-24);
+  // corner math symbols
+  x.font='bold 90px '+body;x.textAlign='center';x.textBaseline='middle';
+  [['+','#58b947',95,110],['×','#d9468f',W-95,110],['÷','#4fb3e6',95,H-95],['π','#f7b928',W-95,H-95]].forEach(([t,col,a,bb])=>{x.fillStyle=col;x.fillText(t,a,bb)});
+  x.direction='rtl';
+  x.font='110px '+disp;x.fillStyle='#b5561c';x.fillText(b.title||'نجوم الرياضيات',W/2,150+7);
+  x.fillStyle='#f7b928';x.fillText(b.title||'نجوم الرياضيات',W/2,150);
+  const meta=(dnum(b.date)||'')+'   ★   عدد الطلاب: '+names.length;
+  x.font='bold 40px '+body;const mw=x.measureText(meta).width+90;
+  x.fillStyle='#b5561c';rr(W/2-mw/2,250+6,mw,70,10);x.fill();
+  x.fillStyle='#f2742b';rr(W/2-mw/2,250,mw,70,10);x.fill();
+  x.fillStyle='#fff';x.fillText(meta,W/2,287);
+  const PX=70,PY=360,PW=W-140,PH=H-PY-150;
+  x.fillStyle='#e9cf8f';rr(PX,PY+8,PW,PH,30);x.fill();
+  x.fillStyle='#fdf4dc';rr(PX,PY,PW,PH,30);x.fill();
+  x.setLineDash([14,10]);x.strokeStyle='#e9cf8f';x.lineWidth=4;rr(PX+16,PY+16,PW-32,PH-32,20);x.stroke();x.setLineDash([]);
+  const n=Math.max(names.length,1), iw=PW-80, ih=PH-80;
+  let best={c:1,f:10}; x.font='bold 100px '+body;
+  const widest=Math.max(...names.map(t=>x.measureText(t).width),200)/100;
+  for(let cc=1;cc<=8;cc++){const rows=Math.ceil(n/cc),cw=(iw-(cc-1)*30)/cc,ch=ih/rows;const f=Math.min(ch/1.7,cw/(widest+2.6),56);if(f>best.f)best={c:cc,f}}
+  const cols=best.c, f=best.f, rows=Math.ceil(n/cols), cw=(iw-(cols-1)*30)/cols, ch=ih/rows;
+  names.forEach((t,i)=>{
+    const col=i%cols,row=Math.floor(i/cols);
+    const right=PX+PW-40-col*(cw+30), cy=PY+40+row*ch+ch/2;
+    const r=f*0.62; x.fillStyle='#f7b928';x.beginPath();x.arc(right-r,cy,r,0,Math.PI*2);x.fill();
+    x.fillStyle='#14214a';x.font='bold '+(f*0.62)+'px '+body;x.textAlign='center';x.direction='ltr';x.fillText(String(i+1),right-r,cy+1);
+    x.direction='rtl';x.textAlign='right';x.font='bold '+f+'px '+body;x.fillStyle='#2a2a3a';
+    let txt=t, maxw=cw-r*2-f*1.6; while(x.measureText(txt).width>maxw&&txt.length>2)txt=txt.slice(0,-1);
+    if(txt!==t)txt+='…';
+    x.fillText(txt,right-r*2-f*0.35,cy+1);
+    x.fillStyle='#f7b928';x.textAlign='left';x.fillText('★',right-cw+2,cy+1);
+    x.strokeStyle='#e9cf8f';x.lineWidth=2;x.beginPath();x.moveTo(right,cy+ch/2-4);x.lineTo(right-cw,cy+ch/2-4);x.stroke();
+  });
+  x.direction='rtl';x.textAlign='center';x.fillStyle='#9be08a';x.font='bold 38px '+body;
+  x.fillText('جهود صغيرة تصنع تقدّماً كبيراً ☺',W/2,H-95);
+  return c;
+}
+$('#vimg').onclick=async()=>{
+  const b=viewing; if(!b)return;
+  try{if(document.fonts&&document.fonts.ready)await Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1500))])}catch(e){}
+  const c=drawPoster(b,vnames);
+  c.toBlob(async blob=>{
+    const name='نجوم-الرياضيات-'+(b.date||today())+'.png';
+    try{
+      const file=new File([blob],name,{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return}
+    }catch(e){if(e&&e.name==='AbortError')return}
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);
+  },'image/png');
+};
 $('#vback').onclick=()=>{closeView();document.querySelector('.archive').scrollIntoView()};
 $('#vedit').onclick=()=>{
   const b=viewing;closeView();
@@ -332,7 +427,5 @@ render();
 })();
 </script>
 
-<div id="offline" dir="rtl" hidden style="text-align:center;font:600 13px/1.4 system-ui,sans-serif;color:#3a8a2e;padding:6px 0 18px">✓ التطبيق محفوظ على هالجهاز وبيشتغل بلا نت</div>
-<script>if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{});navigator.serviceWorker.ready.then(()=>{document.getElementById('offline').hidden=false}).catch(()=>{})}</script>
 </body>
 </html>
